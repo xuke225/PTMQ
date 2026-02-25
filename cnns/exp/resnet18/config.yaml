@@ -1,0 +1,57 @@
+ARCH:
+  name: resnet18
+A_CALIBRATION_PARAM:
+  aaq: true
+  awq: true
+  lr: 4.0e-05
+GDLOSS: true
+GDLOSS_PARAM:
+- 0.6
+- 0.2
+- 0.2
+IMAGENET_LOADER:
+  data_path: /data/ImageNet/
+MIXUP_PARAM:
+- 0.3
+- 0.3
+- 0.4
+ORDER_PARAM:
+  input_prob: 0.5
+  order: together
+  prob: 0.5
+OUT_DIR: ./exp/resnet18/
+QUANT_PARAM:
+  act_quant: true
+  aq:
+    channel_wise: false
+    scale_method: mse
+  disable_8bit_head_stem: false
+  wq:
+    channel_wise: true
+    scale_method: mse
+SEED: 1029
+USE_GPU: true
+W_CALIBRATION_PARAM:
+  b_end: 2
+  b_start: 20
+  iters_w: 30000
+  keep_gpu: true
+  mini_batch: 32
+  num_samples: 1024
+  opt_mode: mse
+  sym: true
+  waq: true
+  warmup: 0.25
+  weight: 0.01
+  wlr: 0.001
+  wwq: true
+group:
+  H:
+  - 7
+  - 8
+  L:
+  - 3
+  - 4
+  M:
+  - 5
+  - 6

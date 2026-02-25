@@ -1,0 +1,1 @@
+python train_multibit_qnn.py --cfg ./config/train_multibit_qnn.yaml

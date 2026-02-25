@@ -1,0 +1,8 @@
+OUT_DIR: 
+IMAGENET_LOADER:
+  data_path: "/data/ImageNet/"
+ARCH:
+  name: "resnet18"
+qnn:
+  baseline: True
+  baselinepath: XXX

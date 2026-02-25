@@ -1,0 +1,1 @@
+python quant_vit.py --cfg ./config/01_quant_vit.yaml

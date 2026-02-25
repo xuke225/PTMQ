@@ -1,0 +1,53 @@
+import sys
+import torch
+from tqdm import tqdm
+sys.path.append('../../../')
+from module.data_utils import save_inp_oup_data  # noqa:F401
+from module.quant_layer import PTQuantModule  # noqa:F401
+
+
+def get_init(model, block, cali_data, wq, aq, batch_size, input_prob: bool = False, keep_gpu: bool = True):
+    cached_inps, cached_outs = save_inp_oup_data(
+        model, block, cali_data, wq, aq, batch_size, input_prob=input_prob, keep_gpu=keep_gpu)
+    return cached_inps, cached_outs
+
+
+def set_weight_quantize_params(model):
+    cnt_w = 0
+    for module in model.modules():
+        torch.cuda.empty_cache()
+        if isinstance(module, (PTQuantModule)):
+            cnt_w += 1
+    print("="*10+"> Init weight quantize params")
+    pbar = tqdm(total=cnt_w)
+
+    for module in model.modules():
+        torch.cuda.empty_cache()
+        if isinstance(module, (PTQuantModule)):
+            module.weight_quantizer.set_inited(False)
+            '''caculate the step size and zero point for weight quantizer'''
+            module.weight_quantizer(module.weight)
+            module.weight_quantizer.set_inited(True)
+            pbar.update(1)
+
+    pbar.close()
+
+
+def weight_get_quant_state(order, act_quant):
+    if not act_quant:
+        return True, False
+    if order == 'before':
+        weight_quant, act_quant = True, True
+    elif order == 'after':
+        weight_quant, act_quant = True, False
+    elif order == 'together':
+        weight_quant, act_quant = True, True
+    else:
+        raise NotImplementedError
+    return weight_quant, act_quant
+
+
+def save_quantized_weight(model):
+    for module in model.modules():
+        if isinstance(module, PTQuantModule):
+            module.weight.data = module.weight_quantizer(module.weight)
